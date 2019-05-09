@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 public class SQLiteJDBCDriverConnection {
 
@@ -30,17 +31,17 @@ public class SQLiteJDBCDriverConnection {
         }
     }
 
-        public static void createNewTable() {
+    public static void createNewTable() {
         // SQLite connection string
         String url = "jdbc:sqlite:tests.db";
-        
+
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS clase ("
                 + "	id integer PRIMARY KEY,"
                 + "	name text NOT NULL,"
                 + "	secondname text NOT NULL"
                 + ");";
-        
+
         try (Connection conn = DriverManager.getConnection(url);
                 Statement stmt = conn.createStatement()) {
             // create a new table
@@ -49,11 +50,43 @@ public class SQLiteJDBCDriverConnection {
             System.out.println(e.getMessage());
         }
     }
-    /**
-     * @param args the command line arguments
-     */
+
+    public static class InsertApp {
+
+        private Connection connecta() {
+            // SQLite connection string
+            String url = "jdbc:sqlite:tests.db";
+            Connection conn = null;
+            try {
+                conn = DriverManager.getConnection(url);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            return conn;
+        }
+
+        public void insert(int id,String name, String secondname) {
+            String sql = "INSERT INTO clase(id,name,secondname) VALUES(?,?,?)";
+
+            try (Connection conn = this.connecta();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, id);
+                pstmt.setString(2, name);
+                pstmt.setString(3, secondname);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
     public static void main(String[] args) {
         connect();
         createNewTable();
+        InsertApp app = new InsertApp();
+        // insert three new rows
+        app.insert(6468,"Iago","Gonzalez");
+        app.insert(6485,"Cesar","Romero");
+
     }
 }
