@@ -117,7 +117,7 @@ public class SQLiteJDBCDriverConnection {
         }
     }
 
-    public class UpdateApp {
+    public static class UpdateApp {
 
         /**
          * Connect to the test.db database
@@ -145,7 +145,7 @@ public class SQLiteJDBCDriverConnection {
          */
         public void update(int id, String name, String secondname) {
             String sql = "UPDATE clase SET name = ? , "
-                    + "capacity = ? "
+                    + "secondname = ? "
                     + "WHERE id = ?";
 
             try (Connection conn = this.connect();
@@ -163,18 +163,74 @@ public class SQLiteJDBCDriverConnection {
         }
 
     }
+    
+    public static class DeleteApp {
+ 
+    /**
+     * Connect to the test.db database
+     *
+     * @return the Connection object
+     */
+    private Connection connect() {
+        // SQLite connection string
+        String url = "jdbc:sqlite:tests.db";
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return conn;
+    }
+ 
+    /**
+     * Delete a warehouse specified by the id
+     *
+     * @param id
+     */
+    public void delete(int id) {
+        String sql = "DELETE FROM clase WHERE id = ?";
+ 
+        try (Connection conn = this.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+ 
+            // set the corresponding param
+            pstmt.setInt(1, id);
+            // execute the delete statement
+            pstmt.executeUpdate();
+ 
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+ 
+}
 
     public static void main(String[] args) {
         connect();
         createNewTable();
         InsertApp app = new InsertApp();
-        // insert three new rows
+
         app.insert(6468, "Iago", "Gonzalez");
         app.insert(6485, "Cesar", "Romero");
+        
         Querying quest = new Querying();
 
         quest.connect();
         quest.selectAll();
-
+        System.out.println("");
+        
+        UpdateApp upd = new UpdateApp();
+        upd.update(6468, "S7orm", "Gonzalez");
+        quest.selectAll();
+        
+        System.out.println("");
+        upd.update(6468, "Iago", "Gonzalez");
+        quest.selectAll();
+        
+        System.out.println("");
+        DeleteApp del =new DeleteApp();
+        del.delete(6468);
+        quest.selectAll();
     }
 }
