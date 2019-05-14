@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 
 public class SQLiteJDBCDriverConnection {
 
@@ -163,74 +164,114 @@ public class SQLiteJDBCDriverConnection {
         }
 
     }
-    
+
     public static class DeleteApp {
- 
-    /**
-     * Connect to the test.db database
-     *
-     * @return the Connection object
-     */
-    private Connection connect() {
-        // SQLite connection string
-        String url = "jdbc:sqlite:tests.db";
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+
+        /**
+         * Connect to the test.db database
+         *
+         * @return the Connection object
+         */
+        private Connection connect() {
+            // SQLite connection string
+            String url = "jdbc:sqlite:tests.db";
+            Connection conn = null;
+            try {
+                conn = DriverManager.getConnection(url);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            return conn;
         }
-        return conn;
-    }
- 
-    /**
-     * Delete a warehouse specified by the id
-     *
-     * @param id
-     */
-    public void delete(int id) {
-        String sql = "DELETE FROM clase WHERE id = ?";
- 
-        try (Connection conn = this.connect();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
- 
-            // set the corresponding param
-            pstmt.setInt(1, id);
-            // execute the delete statement
-            pstmt.executeUpdate();
- 
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+
+        /**
+         * Delete a warehouse specified by the id
+         *
+         * @param id
+         */
+        public void delete(int id) {
+            String sql = "DELETE FROM clase WHERE id = ?";
+
+            try (Connection conn = this.connect();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                // set the corresponding param
+                pstmt.setInt(1, id);
+                // execute the delete statement
+                pstmt.executeUpdate();
+
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
         }
+
     }
- 
-}
 
     public static void main(String[] args) {
         connect();
         createNewTable();
         InsertApp app = new InsertApp();
-
-        app.insert(6468, "Iago", "Gonzalez");
-        app.insert(6485, "Cesar", "Romero");
-        
         Querying quest = new Querying();
 
         quest.connect();
-        quest.selectAll();
-        System.out.println("");
-        
         UpdateApp upd = new UpdateApp();
-        upd.update(6468, "S7orm", "Gonzalez");
-        quest.selectAll();
-        
-        System.out.println("");
-        upd.update(6468, "Iago", "Gonzalez");
-        quest.selectAll();
-        
-        System.out.println("");
-        DeleteApp del =new DeleteApp();
-        del.delete(6468);
-        quest.selectAll();
+        DeleteApp del = new DeleteApp();
+//
+//        app.insert(6468, "Iago", "Gonzalez");
+//        app.insert(6485, "Cesar", "Romero");
+
+//        quest.selectAll();
+//        System.out.println("");
+//        upd.update(6468, "S7orm", "Gonzalez");
+//        quest.selectAll();
+//        upd.update(6468, "Iago", "Gonzalez");
+//        quest.selectAll();
+//        del.delete(6468);
+//        quest.selectAll();
+        int salir = 0;
+        do {
+            String[] opciones = {"SELECT", "INSERT", "UPDATE", "DELETE", "EXIT"};
+            int opcion = JOptionPane.showOptionDialog(
+                    null,
+                    "ELIGE UNA OPCION",
+                    null,
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    opciones,
+                    null
+            );
+
+            switch (opcion) {
+                case 0:
+
+                    quest.selectAll();
+                    System.out.println("");
+                    break;
+                case 1:
+                    app.insert(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")),
+                            JOptionPane.showInputDialog("Introducir name"),
+                            JOptionPane.showInputDialog("Introducir secondname"));
+                    System.out.println("");
+                    break;
+                case 2:
+                    upd.update(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")),
+                            JOptionPane.showInputDialog("Introducir name"),
+                            JOptionPane.showInputDialog("Introducir secondname"));
+                    System.out.println("");
+                    break;
+                case 3:
+                    del.delete(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")));
+                    System.out.println("");
+                    break;
+                case 4:
+                    salir = 1;
+                    System.exit(0);
+                    break;
+                default:
+
+                    break;
+            }
+        } while (salir == 0);
     }
 }
