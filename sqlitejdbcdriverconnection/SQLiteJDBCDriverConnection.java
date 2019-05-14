@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class SQLiteJDBCDriverConnection {
 
@@ -65,7 +66,7 @@ public class SQLiteJDBCDriverConnection {
             return conn;
         }
 
-        public void insert(int id,String name, String secondname) {
+        public void insert(int id, String name, String secondname) {
             String sql = "INSERT INTO clase(id,name,secondname) VALUES(?,?,?)";
 
             try (Connection conn = this.connecta();
@@ -80,13 +81,54 @@ public class SQLiteJDBCDriverConnection {
         }
     }
 
+    public static class Querying {
+
+        private Connection connect() {
+            // SQLite connection string
+            String url = "jdbc:sqlite:tests.db";
+            Connection conn = null;
+            try {
+                conn = DriverManager.getConnection(url);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            return conn;
+        }
+
+        /**
+         * select all rows in the warehouses table
+         */
+        public void selectAll() {
+            String sql = "SELECT id, name, secondname FROM clase";
+
+            try (Connection conn = this.connect();
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(sql)) {
+
+                // loop through the result set
+                while (rs.next()) {
+                    System.out.println(rs.getInt("id") + "\t"
+                            + rs.getString("name") + "\t"
+                            + rs.getString("secondname"));
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
         connect();
         createNewTable();
         InsertApp app = new InsertApp();
         // insert three new rows
-        app.insert(6468,"Iago","Gonzalez");
-        app.insert(6485,"Cesar","Romero");
+        app.insert(6468, "Iago", "Gonzalez");
+        app.insert(6485, "Cesar", "Romero");
+        Querying quest = new Querying();
+        
+        quest.connect();
+        quest.selectAll();
 
     }
 }
