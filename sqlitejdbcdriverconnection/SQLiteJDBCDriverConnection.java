@@ -96,9 +96,6 @@ public class SQLiteJDBCDriverConnection {
             return conn;
         }
 
-        /**
-         * select all rows in the warehouses table
-         */
         public void selectAll() {
             String sql = "SELECT id, name, secondname FROM clase";
 
@@ -106,7 +103,6 @@ public class SQLiteJDBCDriverConnection {
                     Statement stmt = conn.createStatement();
                     ResultSet rs = stmt.executeQuery(sql)) {
 
-                // loop through the result set
                 while (rs.next()) {
                     System.out.println(rs.getInt("id") + "\t"
                             + rs.getString("name") + "\t"
@@ -116,17 +112,29 @@ public class SQLiteJDBCDriverConnection {
                 System.out.println(e.getMessage());
             }
         }
+
+        public void select(String sql) {
+
+            try (Connection conn = this.connect();
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(sql)) {
+                // loop through the result set
+                while (rs.next()) {
+                    System.out.println(rs.getInt("id") + "\t"
+                            + rs.getString("name") + "\t"
+                            + rs.getString("secondname"));
+
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     public static class UpdateApp {
 
-        /**
-         * Connect to the test.db database
-         *
-         * @return the Connection object
-         */
         private Connection connect() {
-            // SQLite connection string
+
             String url = "jdbc:sqlite:tests.db";
             Connection conn = null;
             try {
@@ -137,13 +145,6 @@ public class SQLiteJDBCDriverConnection {
             return conn;
         }
 
-        /**
-         * Update data of a warehouse specified by the id
-         *
-         * @param id
-         * @param name name of the warehouse
-         * @param capacity capacity of the warehouse
-         */
         public void update(int id, String name, String secondname) {
             String sql = "UPDATE clase SET name = ? , "
                     + "secondname = ? "
@@ -152,11 +153,10 @@ public class SQLiteJDBCDriverConnection {
             try (Connection conn = this.connect();
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                // set the corresponding param
                 pstmt.setString(1, name);
                 pstmt.setString(2, secondname);
                 pstmt.setInt(3, id);
-                // update 
+
                 pstmt.executeUpdate();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -167,11 +167,6 @@ public class SQLiteJDBCDriverConnection {
 
     public static class DeleteApp {
 
-        /**
-         * Connect to the test.db database
-         *
-         * @return the Connection object
-         */
         private Connection connect() {
             // SQLite connection string
             String url = "jdbc:sqlite:tests.db";
@@ -184,11 +179,6 @@ public class SQLiteJDBCDriverConnection {
             return conn;
         }
 
-        /**
-         * Delete a warehouse specified by the id
-         *
-         * @param id
-         */
         public void delete(int id) {
             String sql = "DELETE FROM clase WHERE id = ?";
 
@@ -230,7 +220,7 @@ public class SQLiteJDBCDriverConnection {
 //        quest.selectAll();
         int salir = 0;
         do {
-            String[] opciones = {"SELECT", "INSERT", "UPDATE", "DELETE", "EXIT"};
+            String[] opciones = {"SELECT", "SELECT *", "INSERT", "UPDATE", "DELETE", "EXIT"};
             int opcion = JOptionPane.showOptionDialog(
                     null,
                     "ELIGE UNA OPCION",
@@ -249,22 +239,25 @@ public class SQLiteJDBCDriverConnection {
                     System.out.println("");
                     break;
                 case 1:
+                    quest.select(JOptionPane.showInputDialog("Introducir consulta"));
+                    break;
+                case 2:
                     app.insert(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")),
                             JOptionPane.showInputDialog("Introducir name"),
                             JOptionPane.showInputDialog("Introducir secondname"));
                     System.out.println("");
                     break;
-                case 2:
+                case 3:
                     upd.update(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")),
                             JOptionPane.showInputDialog("Introducir name"),
                             JOptionPane.showInputDialog("Introducir secondname"));
                     System.out.println("");
                     break;
-                case 3:
+                case 4:
                     del.delete(Integer.parseInt(JOptionPane.showInputDialog("Introducir id")));
                     System.out.println("");
                     break;
-                case 4:
+                case 5:
                     salir = 1;
                     System.exit(0);
                     break;
